@@ -5,8 +5,10 @@ import com.henriqueborba.digital_account.customer.Customer;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
+import lombok.Builder;
 import org.hibernate.validator.constraints.br.CPF;
 
+@Builder
 public record CustomerRequest(
 
         @NotBlank(message = "Name is mandatory")

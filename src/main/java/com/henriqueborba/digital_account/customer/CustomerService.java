@@ -12,6 +12,10 @@ public class CustomerService {
     private final CustomerRepository repository;
 
     public Customer createCustomer(Customer customer) {
+        repository.findCustomerByEmail(customer.getEmail())
+                .ifPresent(c -> {
+                    throw new IllegalArgumentException("Email already exists");
+                });
         return repository.save(customer);
     }
 

@@ -31,6 +31,14 @@ class GlobalExceptionHandler {
         log.error(ex.getMessage(), ex);
     }
 
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler({IllegalArgumentException.class})
+    public String handleIllegalArgumentException(
+            IllegalArgumentException ex) {
+        log.error(ex.getMessage(), ex);
+        return ex.getMessage();
+    }
+
     @ExceptionHandler({MethodArgumentNotValidException.class})
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ResponseBody
