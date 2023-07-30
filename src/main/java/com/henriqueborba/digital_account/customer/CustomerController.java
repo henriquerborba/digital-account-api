@@ -18,8 +18,8 @@ public class CustomerController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public void createCustomer(@Validated @RequestBody CustomerRequest request) {
-        service.createCustomer(request.toEntity());
+    public CustomerResponse createCustomer(@Validated @RequestBody CustomerRequest request) {
+        return CustomerResponse.fromEntity(service.createCustomer(request.toEntity()));
     }
 
     @PutMapping("/{id}")
