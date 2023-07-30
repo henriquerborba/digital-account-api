@@ -27,11 +27,11 @@ public class Account {
     @Builder.Default
     private BigDecimal balance = BigDecimal.ZERO;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "customer_id", nullable = false)
     private Customer customer;
 
-    enum AccountType {
+    public enum AccountType {
         SAVINGS_ACCOUNT,
         CURRENT_ACCOUNT
     }
