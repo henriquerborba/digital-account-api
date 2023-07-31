@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
+import javax.naming.AuthenticationException;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -35,6 +36,14 @@ class GlobalExceptionHandler {
     @ExceptionHandler({IllegalArgumentException.class})
     public String handleIllegalArgumentException(
             IllegalArgumentException ex) {
+        log.error(ex.getMessage(), ex);
+        return ex.getMessage();
+    }
+
+    @ExceptionHandler({AuthenticationException.class})
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    public String handleAuthenticationException(
+            AuthenticationException ex) {
         log.error(ex.getMessage(), ex);
         return ex.getMessage();
     }

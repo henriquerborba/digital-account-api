@@ -1,7 +1,6 @@
 package com.henriqueborba.digital_account.customer.dto;
 
 
-import com.henriqueborba.digital_account.customer.Customer;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
@@ -26,12 +25,4 @@ public record CustomerRequest(
         @Size(min = 6, message = "Password must be at least 6 characters")
         String password
 ) {
-    public Customer toEntity() {
-        return Customer.builder()
-                .name(name)
-                .cpf(cpf)
-                .email(email)
-                .password(password)
-                .build();
-    }
 }

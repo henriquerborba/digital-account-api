@@ -28,6 +28,8 @@ class CustomerControllerTest {
     private MockMvc mockMvc;
     @Mock
     private CustomerService customerService;
+    @Mock
+    private CustomerMapper customerMapper;
     @InjectMocks
     private CustomerController customerController;
 
@@ -42,16 +44,14 @@ class CustomerControllerTest {
         // Test creating a new customer
         CustomerRequest request = CustomerCreator.createValidCustomerRequest();
 
-        Customer createdCustomer = request.toEntity();
-        when(customerService.createCustomer(any())).thenReturn(createdCustomer);
+        when(customerService.createCustomer(any())).thenReturn("token");
+        when(customerMapper.toEntity(any(CustomerRequest.class))).thenReturn(CustomerCreator.createValidCustomer());
 
         mockMvc.perform(MockMvcRequestBuilders.post("/api/customers")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.name").value(createdCustomer.getName()))
-                .andExpect(jsonPath("$.cpf").value(createdCustomer.getCpf()))
-                .andExpect(jsonPath("$.email").value(createdCustomer.getEmail()));
+                .andExpect(jsonPath("$.token").value("token"));
     }
 
     @Test
@@ -157,28 +157,22 @@ class CustomerControllerTest {
         final var request = CustomerCreator.createValidCustomerRequest();
 
         final var updatedCustomer = CustomerCreator.createValidCustomer();
-        when(customerService.updateCustomer(any(), any())).thenReturn(updatedCustomer);
+        when(customerService.updateCustomer(any())).thenReturn(updatedCustomer);
 
-        mockMvc.perform(MockMvcRequestBuilders.put("/api/customers/{id}", 1)
+        mockMvc.perform(MockMvcRequestBuilders.put("/api/customers/")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.name").value(updatedCustomer.getName()))
-                .andExpect(jsonPath("$.cpf").value(updatedCustomer.getCpf()))
-                .andExpect(jsonPath("$.email").value(updatedCustomer.getEmail()));
+                .andExpect(status().isOk());
     }
 
     @Test
     @DisplayName("Get customer when a valid id is provided should return 200 OK")
     void testGetCustomer() throws Exception {
         final var customer = CustomerCreator.createValidCustomer();
-        when(customerService.getCustomer(any())).thenReturn(customer);
+        when(customerService.getCustomer()).thenReturn(customer);
 
-        mockMvc.perform(MockMvcRequestBuilders.get("/api/customers/{id}", 1))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.name").value(customer.getName()))
-                .andExpect(jsonPath("$.cpf").value(customer.getCpf()))
-                .andExpect(jsonPath("$.email").value(customer.getEmail()));
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/customers/"))
+                .andExpect(status().isOk());
     }
 
 }

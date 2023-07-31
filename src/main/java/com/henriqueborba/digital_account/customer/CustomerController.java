@@ -1,8 +1,11 @@
 package com.henriqueborba.digital_account.customer;
 
+import com.henriqueborba.digital_account.customer.dto.AuthenticationRequest;
+import com.henriqueborba.digital_account.customer.dto.AuthenticationResponse;
 import com.henriqueborba.digital_account.customer.dto.CustomerRequest;
 import com.henriqueborba.digital_account.customer.dto.CustomerResponse;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -17,23 +20,35 @@ public class CustomerController {
 
     private final CustomerService service;
 
+    private final CustomerMapper mapper;
+
     @PostMapping
-    @Operation(summary = "Create a new customer")
     @ResponseStatus(HttpStatus.CREATED)
-    public CustomerResponse createCustomer(@Validated @RequestBody CustomerRequest request) {
-        return CustomerResponse.fromEntity(service.createCustomer(request.toEntity()));
+    @Operation(summary = "Create a new customer")
+    public AuthenticationResponse createCustomer(@Validated @RequestBody CustomerRequest request) {
+        final String token = service.createCustomer(mapper.toEntity(request));
+        return new AuthenticationResponse(token);
     }
 
-    @PutMapping("/{id}")
+    @PostMapping("/login")
+    @Operation(summary = "Login")
+    public AuthenticationResponse loginCustomer(@Validated @RequestBody AuthenticationRequest request) {
+        final String token = service.loginCustomer(mapper.toEntity(request));
+        return new AuthenticationResponse(token);
+    }
+
+    @PutMapping
     @Operation(summary = "Update a customer")
-    public CustomerResponse updateCustomer(@PathVariable Long id, @Validated @RequestBody CustomerRequest request) {
-        return CustomerResponse.fromEntity(service.updateCustomer(id, request.toEntity()));
+    @SecurityRequirement(name = "bearerAuth")
+    public CustomerResponse updateCustomer(@Validated @RequestBody CustomerRequest request) {
+        return mapper.fromEntity(service.updateCustomer(mapper.toEntity(request)));
     }
 
-    @GetMapping("/{id}")
-    @Operation(summary = "Get a customer by id")
-    public CustomerResponse getCustomer(@PathVariable Long id) {
-        return CustomerResponse.fromEntity(service.getCustomer(id));
+    @GetMapping
+    @SecurityRequirement(name = "bearerAuth")
+    @Operation(summary = "Get logged customer")
+    public CustomerResponse getCustomer() {
+        return mapper.fromEntity(service.getCustomer());
     }
 
 }

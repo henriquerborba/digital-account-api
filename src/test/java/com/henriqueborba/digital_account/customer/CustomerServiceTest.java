@@ -1,26 +1,44 @@
 package com.henriqueborba.digital_account.customer;
 
+import com.henriqueborba.digital_account.core.config.JwtService;
+import com.henriqueborba.digital_account.util.CustomerCreator;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("Tests for Customer Service")
 class CustomerServiceTest {
-
     @InjectMocks
     private CustomerService customerService;
-
     @Mock
     private CustomerRepository repository;
+
+    @Mock
+    private JwtService jwtService;
+
+    @BeforeAll
+    static void setUp() {
+        SecurityContext securityContext = mock(SecurityContext.class);
+        Authentication authentication = mock(Authentication.class);
+        when(securityContext.getAuthentication()).thenReturn(authentication);
+        SecurityContextHolder.setContext(securityContext);
+        when(authentication.getPrincipal()).thenReturn(CustomerCreator.createValidCustomer());
+    }
 
     @Test
     @DisplayName("Create customer when a new email is provided")
@@ -35,10 +53,11 @@ class CustomerServiceTest {
         // Test when a new email is provided
         Customer newCustomer = Customer.builder().email("new@example.com").build();
         when(repository.save(newCustomer)).thenReturn(newCustomer);
-        Customer createdCustomer = customerService.createCustomer(newCustomer);
+        when(jwtService.generateToken(newCustomer)).thenReturn("token");
+        String token = customerService.createCustomer(newCustomer);
 
-        assertNotNull(createdCustomer);
-        assertEquals("new@example.com", createdCustomer.getEmail());
+        assertNotNull(token);
+        assertEquals("token", token);
     }
 
     @Test
@@ -57,15 +76,8 @@ class CustomerServiceTest {
     @Test
     @DisplayName("Update customer when a new email is provided")
     void testUpdateCustomer() {
-        Long customerId = 1L;
 
-        Customer existingCustomer = Customer.builder()
-                .id(customerId)
-                .name("John Doe")
-                .cpf("123456789")
-                .email("john.doe@example.com")
-                .password("password")
-                .build();
+        Customer existingCustomer = CustomerCreator.createValidCustomer();
 
         Customer updatedCustomer = Customer.builder()
                 .name("Jane Doe")
@@ -75,12 +87,12 @@ class CustomerServiceTest {
                 .build();
 
         // Mock the behavior of repository.findById
-        when(repository.findById(customerId)).thenReturn(Optional.of(existingCustomer));
+        when(repository.findCustomerByEmail(any())).thenReturn(Optional.of(existingCustomer));
 
         // Mock the behavior of repository.save
         when(repository.save(existingCustomer)).thenReturn(existingCustomer);
 
-        Customer result = customerService.updateCustomer(customerId, updatedCustomer);
+        Customer result = customerService.updateCustomer(updatedCustomer);
 
         assertNotNull(result);
         assertEquals("Jane Doe", result.getName());
