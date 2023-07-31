@@ -2,6 +2,10 @@ package com.henriqueborba.digital_account.account;
 
 import com.henriqueborba.digital_account.account.dto.AccountRequest;
 import com.henriqueborba.digital_account.account.dto.AccountResponse;
+import com.henriqueborba.digital_account.transaction.TransactionMapper;
+import com.henriqueborba.digital_account.transaction.TransactionService;
+import com.henriqueborba.digital_account.transaction.dto.TransactionRequest;
+import com.henriqueborba.digital_account.transaction.dto.TransactionResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -23,11 +27,30 @@ public class AccountController {
 
     private final AccountMapper mapper;
 
+    private final TransactionService transactionService;
+
+    private final TransactionMapper transactionMapper;
+
     @PostMapping
     @Operation(summary = "Create a customer account")
     @ResponseStatus(HttpStatus.CREATED)
     public AccountResponse createAccount(@Validated @RequestBody AccountRequest request) {
         return mapper.fromEntity(service.createAccount(mapper.toEntity(request)));
+    }
+
+    @PostMapping("/{id}/transactions")
+    @Operation(summary = "Create a transaction for a customer account")
+    @ResponseStatus(HttpStatus.CREATED)
+    public TransactionResponse createTransaction(
+            @PathVariable(value = "id") Long accountId,
+            @Validated @RequestBody TransactionRequest request) {
+        return transactionMapper.fromEntity(transactionService.save(accountId, transactionMapper.toEntity(request)));
+    }
+
+    @GetMapping("/{id}/transactions")
+    @Operation(summary = "Get all transactions from a customer account")
+    public List<TransactionResponse> findTransactionsByAccount(@PathVariable(value = "id") Long accountId) {
+        return transactionService.findTransactionsByAccount(accountId).stream().map(transactionMapper::fromEntity).toList();
     }
 
     @PutMapping("/{id}")

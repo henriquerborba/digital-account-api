@@ -30,11 +30,11 @@ public class Transaction {
     @Column(nullable = false)
     private Instant createdAt = Instant.now();
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "account_id", nullable = false)
     private Account account;
 
-    enum TransactionType {
+    public enum TransactionType {
         DEPOSIT,
         WITHDRAWAL
     }
