@@ -11,10 +11,5 @@ public record AccountRequest(
         BigDecimal balance
 
 ) {
-    public Account toEntity() {
-        return Account.builder()
-                .accountType(accountType)
-                .balance(balance)
-                .build();
-    }
+
 }
