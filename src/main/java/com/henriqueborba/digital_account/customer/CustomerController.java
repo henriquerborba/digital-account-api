@@ -38,7 +38,7 @@ public class CustomerController {
     }
 
     @PutMapping
-    @Operation(summary = "Update a customer")
+    @Operation(summary = "Update logged customer")
     @SecurityRequirement(name = "bearerAuth")
     public CustomerResponse updateCustomer(@Validated @RequestBody CustomerRequest request) {
         return mapper.fromEntity(service.updateCustomer(mapper.toEntity(request)));
