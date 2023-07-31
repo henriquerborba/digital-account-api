@@ -27,25 +27,25 @@ public class AccountController {
     @Operation(summary = "Create a customer account")
     @ResponseStatus(HttpStatus.CREATED)
     public AccountResponse createAccount(@Validated @RequestBody AccountRequest request) {
-        return AccountMapper.fromEntity(service.createAccount(mapper.toEntity(request)));
+        return mapper.fromEntity(service.createAccount(mapper.toEntity(request)));
     }
 
     @PutMapping("/{id}")
     @Operation(summary = "Update a customer account")
     public AccountResponse updateAccount(@PathVariable Long id, @Validated @RequestBody AccountRequest request) {
-        return AccountMapper.fromEntity(service.updateAccount(id, mapper.toEntity(request)));
+        return mapper.fromEntity(service.updateAccount(id, mapper.toEntity(request)));
     }
 
     @GetMapping
     @Operation(summary = "Get all accounts from the logged customer")
     public List<AccountResponse> findAccountsByCustomer() {
-        return service.findAccountsByCustomer().stream().map(AccountMapper::fromEntity).toList();
+        return service.findAccountsByCustomer().stream().map(mapper::fromEntity).toList();
     }
 
     @GetMapping("/{id}")
     @Operation(summary = "Get an customer account by id")
     public AccountResponse getAccount(@PathVariable Long id) {
-        return AccountMapper.fromEntity(service.getAccount(id));
+        return mapper.fromEntity(service.getAccount(id));
     }
 
 }

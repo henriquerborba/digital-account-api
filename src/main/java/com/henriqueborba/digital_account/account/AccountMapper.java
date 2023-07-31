@@ -11,7 +11,7 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 @Service
 public class AccountMapper {
 
-    public static AccountResponse fromEntity(Account account) {
+    public AccountResponse fromEntity(Account account) {
         return new AccountResponse(account.getId(), account.getAccountType(), account.getBalance())
                 .add(linkTo(methodOn(AccountController.class).getAccount(account.getId())).withSelfRel());
     }
